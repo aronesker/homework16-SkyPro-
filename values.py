@@ -15,7 +15,7 @@ def load_data(file_path):
     :param file_path: путь к файлы
     :return: данные из файла
     """
-    with open(file_path) as file:
+    with open(file_path, encoding='utf-8') as file:
         content = json.load(file)
 
     return content
@@ -30,8 +30,12 @@ def add_user_roles(data_path):
 
     for role in data_content:
 
-        if db.session.query(exists().where(models.UserRole.id == role['id'])) is False:
-            new_role = models.UserRole(**role)  # id=role['id'], name=role['name']
+        # if db.session.query(exists().where(models.UserRole.id == role['id'])) is False:
+        #     new_role = models.UserRole(**role)  # id=role['id'], name=role['name']
+        #     db.session.add(new_role)
+
+        if db.session.query(models.UserRole).filter(models.UserRole.id == role['id']).first() is None:
+            new_role = models.UserRole(**role)
             db.session.add(new_role)
 
     db.session.commit()
@@ -87,4 +91,3 @@ def add_orders(data_path):
             db.session.add(new_role)
 
     db.session.commit()
-
