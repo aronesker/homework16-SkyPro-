@@ -1,6 +1,7 @@
 import models
 from functions import db
 from flask import current_app as app, jsonify, request
+from datetime import datetime
 
 
 @app.route('/users', methods=['GET'])
@@ -12,7 +13,7 @@ def get_users():
 
 @app.route('/users/<int:user_id>', methods=['GET'])
 def get_user_by_id(user_id):
-    user = db.session.query(models.Order).filter(models.User.id == user_id).first()
+    user = db.session.query(models.User).filter(models.User.id == user_id).first()
 
     return jsonify(user.serialize())
 
@@ -82,6 +83,13 @@ def delete_user(user_id):
 def create_order():
     data = request.json
 
+    for category, value in data.items():
+        if category == "start_date":
+            data[category] = datetime.strptime(value, '%d/%m/%Y, %H:%M:%S')
+        elif category == "end_date":
+            data[category] = datetime.strptime(value, '%d/%m/%Y, %H:%M:%S')
+
+
     db.session.add(models.Order(**data))
 
     db.session.commit()
@@ -92,6 +100,12 @@ def create_order():
 @app.route('/orders/<int:order_id>', methods=['PUT'])
 def change_order(order_id):
     data = request.json
+
+    for category, value in data.items():
+        if category == "start_date":
+            data[category] = datetime.strptime(value, '%d/%m/%Y, %H:%M:%S')
+        elif category == "end_date":
+            data[category] = datetime.strptime(value, '%d/%m/%Y, %H:%M:%S')
 
     db.session.query(models.Order).filter(models.Order.id == order_id).first()
 
@@ -137,7 +151,7 @@ def change_offer(offer_id):
 
 
 @app.route('/offers/<int:offer_id>', methods=['DELETE'])
-def delete_order(offer_id):
+def delete_offer(offer_id):
 
     db.session.query(models.Offer).filter(models.Offer.id == offer_id).delete()
 
